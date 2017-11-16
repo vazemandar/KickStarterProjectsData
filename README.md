@@ -1,2 +1,3 @@
 # KickStarterProjectsData
-This script is designed to Scrape Data about projects on kickstarter.com
+This project script includes scraping data from kickstarter.com, pre- processing data in the and modelling techniques for time series and machine learning.
+
