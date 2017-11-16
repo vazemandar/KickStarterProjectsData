@@ -1,0 +1,393 @@
+'''
+Created on Jan 16, 2017
+
+@author: mandar
+'''
+from xml.dom import minidom
+import csv
+import re 
+import xml.etree.ElementTree as ET
+from collections import OrderedDict
+import multiprocessing
+import json
+
+TitleDictionary=OrderedDict()
+descdictionary=OrderedDict()
+listofdata=list()
+wordlist=list()
+
+fhand = open('C:/Users/mandar/Downloads/testing/KickstartDay20unsuccesful.xml')
+
+root = ET.parse(fhand)
+
+print(root)
+for titl in root.iter('UnsuccessfulProject'):
+    for latch in titl.find("Title").text.split():
+        for word in re.findall(r"[\w']+",latch):
+            try:
+                TitleDictionary[re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower()]+=1
+            except KeyError:
+                TitleDictionary[re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower()]=1
+                
+
+for dsc in root.iter('UnsuccessfulProject'):
+    for latch in dsc.find("campaigndescription").text.split():
+        for word in re.findall(r"[\w']+",latch):
+            try:
+                descdictionary[re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower()]+=1
+            except KeyError:    
+                descdictionary[re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower()]=1
+            
+docnew = open('C:/Users/mandar/Downloads/testing/KickstartDay20Success.xml')
+rootnew =  ET.parse(docnew)
+
+for titl in rootnew.iter('successproject'):
+    for latch in titl.find("Title").text.split():
+        for word in re.findall(r"[\w']+",latch):
+            try:
+                TitleDictionary[re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower()]+=1
+            except KeyError:
+                TitleDictionary[re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower()]=1
+            
+for dscs in rootnew.iter('successproject'):
+    for latch in dscs.find("campaigndescription").text.split():
+        for word in re.findall(r"[\w']+",latch):
+            try:
+                descdictionary[re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower()]+=1
+            except KeyError:    
+                descdictionary[re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower()]=1
+
+
+#for titl in root.iter('UnsuccessfulProject'):
+#    listofzerostitle = [0] * len(TitleDictionary)
+#    listofzerosdescription = [0] * len(descdictionary)
+#    for latch in titl.find("Title").text.split():
+#        for word in re.findall(r"[\w']+",re.sub('[^a-zA-Z \n\.]', '', latch.encode('ascii','ignore').decode("utf8")).lower()):
+#            try: 
+#                listofzerostitle[TitleDictionary.keys().index(word)] = 1
+#            except ValueError:
+#                pass
+#    print(listofzerostitle) 
+#    for latch in titl.find("campaigndescription").text.split():
+#        for word in re.findall(r"[\w']+",latch):
+#            try:
+#                listofzerosdescription[descdictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+#            except ValueError:
+#                pass    
+#    listofdata.append([titl.find("Title").text,listofzerosdescription,listofzerostitle,0]) 
+#with open('C:/Users/mandar/Downloads/testing/listoflist.txt', 'w') as myfile:
+#    json.dump(listofdata,myfile)
+def success1():
+    with open('C:/Users/mandar/Downloads/testing/listoflist3.txt', 'w') as myfile:
+        json.dump(listofdata,myfile)
+    fhand = open('C:/Users/mandar/Downloads/testing/spart1.xml')
+    root = ET.parse(fhand)
+    for titl in root.iter('successproject'):
+        try:
+            listofzerostitle = [0] * len(TitleDictionary)
+            listofzerosdescription = [0] * len(descdictionary)
+            for latch in titl.find("Title").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerostitle[TitleDictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+         #   print (titl)
+            for latch in titl.find("campaigndescription").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerosdescription[descdictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            listofdata=[titl.find("Title").text,listofzerosdescription,listofzerostitle,1] 
+            with open('C:/Users/mandar/Downloads/testing/listoflist3.txt', 'a') as myfile:
+                json.dump(listofdata,myfile)
+        except:
+            print(titl.find("Title").text)
+            continue    
+    
+def success2():
+    fhand = open('C:/Users/mandar/Downloads/testing/spart2.xml')
+    root = ET.parse(fhand)
+    for titl in root.iter('successproject'):
+        try:
+            listofzerostitle = [0] * len(TitleDictionary)
+            listofzerosdescription = [0] * len(descdictionary)
+            for latch in titl.find("Title").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerostitle[TitleDictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            #print (titl)
+            for latch in titl.find("campaigndescription").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerosdescription[descdictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            listofdata.append([titl.find("Title").text,listofzerosdescription,listofzerostitle,1]) 
+
+        except:
+            print(titl.find("Title").text)
+            continue
+    with open('C:/Users/mandar/Downloads/testing/listoflist4.txt', 'a') as myfile:
+        json.dump(listofdata,myfile)           
+
+def success3():
+    fhand = open('C:/Users/mandar/Downloads/testing/spart3.xml')
+    root = ET.parse(fhand)
+    for titl in root.iter('successproject'):
+        try:
+            listofzerostitle = [0] * len(TitleDictionary)
+            listofzerosdescription = [0] * len(descdictionary)
+            for latch in titl.find("Title").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerostitle[TitleDictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            #print (titl)
+            for latch in titl.find("campaigndescription").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerosdescription[descdictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            listofdata.append([titl.find("Title").text,listofzerosdescription,listofzerostitle,1]) 
+
+        except:
+            print(titl.find("Title").text)
+            continue   
+    with open('C:/Users/mandar/Downloads/testing/listoflist5.txt', 'a') as myfile:
+        json.dump(listofdata,myfile)
+
+def success4():
+    fhand = open('C:/Users/mandar/Downloads/testing/spart4.xml')
+    root = ET.parse(fhand)
+    for titl in root.iter('successproject'):
+        try:
+            listofzerostitle = [0] * len(TitleDictionary)
+            listofzerosdescription = [0] * len(descdictionary)
+            for latch in titl.find("Title").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerostitle[TitleDictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            #print (titl)
+            for latch in titl.find("campaigndescription").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerosdescription[descdictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            listofdata.append([titl.find("Title").text,listofzerosdescription,listofzerostitle,1]) 
+
+        except:
+            print(titl.find("Title").text)
+            continue   
+    with open('C:/Users/mandar/Downloads/testing/listoflist6.txt', 'a') as myfile:
+        json.dump(listofdata,myfile)
+        
+def success5():
+    fhand = open('C:/Users/mandar/Downloads/testing/spart5.xml')
+    root = ET.parse(fhand)
+    for titl in root.iter('successproject'):
+        try:
+            listofzerostitle = [0] * len(TitleDictionary)
+            listofzerosdescription = [0] * len(descdictionary)
+            for latch in titl.find("Title").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerostitle[TitleDictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            #print (titl)
+            for latch in titl.find("campaigndescription").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerosdescription[descdictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            listofdata.append([titl.find("Title").text,listofzerosdescription,listofzerostitle,1]) 
+
+        except:
+            print(titl.find("Title").text)
+            continue   
+    with open('C:/Users/mandar/Downloads/testing/listoflist7.txt', 'a') as myfile:
+        json.dump(listofdata,myfile)
+
+def success6():
+    fhand = open('C:/Users/mandar/Downloads/testing/spart6.xml')
+    root = ET.parse(fhand)
+    for titl in root.iter('successproject'):
+        try:
+            listofzerostitle = [0] * len(TitleDictionary)
+            listofzerosdescription = [0] * len(descdictionary)
+            for latch in titl.find("Title").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerostitle[TitleDictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            #print (titl)
+            for latch in titl.find("campaigndescription").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerosdescription[descdictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            listofdata.append([titl.find("Title").text,listofzerosdescription,listofzerostitle,1]) 
+
+        except:
+            print(titl.find("Title").text)
+            continue   
+    
+    with open('C:/Users/mandar/Downloads/testing/listoflist8.txt', 'a') as myfile:
+        json.dump(listofdata,myfile)
+def success7():
+    fhand = open('C:/Users/mandar/Downloads/testing/spart7.xml')
+    root = ET.parse(fhand)
+    for titl in root.iter('successproject'):
+        try:
+            listofzerostitle = [0] * len(TitleDictionary)
+            listofzerosdescription = [0] * len(descdictionary)
+            for latch in titl.find("Title").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerostitle[TitleDictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            #print (titl)
+            for latch in titl.find("campaigndescription").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerosdescription[descdictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            listofdata.append([titl.find("Title").text,listofzerosdescription,listofzerostitle,1]) 
+
+        except:
+            print(titl.find("Title").text)
+            continue   
+    with open('C:/Users/mandar/Downloads/testing/listoflist9.txt', 'a') as myfile:
+        json.dump(listofdata,myfile)
+    
+def success8():
+    fhand = open('C:/Users/mandar/Downloads/testing/spart8.xml')
+    root = ET.parse(fhand)
+    for titl in root.iter('successproject'):
+        try:
+            listofzerostitle = [0] * len(TitleDictionary)
+            listofzerosdescription = [0] * len(descdictionary)
+            for latch in titl.find("Title").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerostitle[TitleDictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            #print (titl)
+            for latch in titl.find("campaigndescription").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerosdescription[descdictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            listofdata.append([titl.find("Title").text,listofzerosdescription,listofzerostitle,1]) 
+
+        except:
+            print(titl.find("Title").text)
+            continue   
+    with open('C:/Users/mandar/Downloads/testing/listoflist10.txt', 'a') as myfile:
+        json.dump(listofdata,myfile)
+def success9():
+    fhand = open('C:/Users/mandar/Downloads/testing/spart9.xml')
+    root = ET.parse(fhand)
+    for titl in root.iter('successproject'):
+        try:
+            listofzerostitle = [0] * len(TitleDictionary)
+            listofzerosdescription = [0] * len(descdictionary)
+            for latch in titl.find("Title").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerostitle[TitleDictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            #print (titl)
+            for latch in titl.find("campaigndescription").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerosdescription[descdictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            listofdata.append([titl.find("Title").text,listofzerosdescription,listofzerostitle,1]) 
+
+        except:
+            print(titl.find("Title").text)
+            continue   
+    with open('C:/Users/mandar/Downloads/testing/listoflist11.txt', 'a') as myfile:
+        json.dump(listofdata,myfile)
+def success10():
+    fhand = open('C:/Users/mandar/Downloads/testing/spart10.xml')
+    root = ET.parse(fhand)
+    for titl in root.iter('successproject'):
+        try:
+            listofzerostitle = [0] * len(TitleDictionary)
+            listofzerosdescription = [0] * len(descdictionary)
+            for latch in titl.find("Title").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerostitle[TitleDictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            #print (titl)
+            for latch in titl.find("campaigndescription").text.split():
+                for word in re.findall(r"[\w']+",latch):
+                    try:
+                        listofzerosdescription[descdictionary.keys().index(re.sub('[^a-zA-Z \n\.]', '', word.encode('ascii','ignore').decode("utf8")).lower())] = 1
+                    except ValueError:
+                        pass
+            listofdata.append([titl.find("Title").text,listofzerosdescription,listofzerostitle,1]) 
+
+        except:
+            print(titl.find("Title").text)
+            continue   
+    with open('C:/Users/mandar/Downloads/testing/listoflist12.txt', 'a') as myfile:
+        json.dump(listofdata,myfile)
+
+if __name__ == '__main__':
+    p1 = multiprocessing.Process(name = 'p1',target=success1)
+    p2 = multiprocessing.Process(name = 'p2',target=success2)
+    p3 = multiprocessing.Process(name = 'p3',target=success3)
+    p4 = multiprocessing.Process(name = 'p4',target=success4)
+    p5 = multiprocessing.Process(name = 'p5',target=success5)
+    p6 = multiprocessing.Process(name = 'p6',target=success6)
+    p7 = multiprocessing.Process(name = 'p7',target=success7)
+    p8 = multiprocessing.Process(name = 'p8',target=success8)
+    p9 = multiprocessing.Process(name = 'p9',target=success9)
+    p10 = multiprocessing.Process(name = 'p10',target=success10)
+    p1.start()
+    #p1.join()
+    p2.start()
+    #p2.join()
+    p3.start()
+    #p3.join()
+    p4.start()
+    #p4.join()
+    p5.start()
+    #p5.join()
+    p6.start()
+    #p6.join()
+    p7.start()
+    #p7.join()
+    p8.start()
+    #p8.join()
+    p9.start()
+    #p9.join()
+    p10.start()
+    #p10.join()    
+
+
+
+
