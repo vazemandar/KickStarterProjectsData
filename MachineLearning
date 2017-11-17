@@ -1,0 +1,382 @@
+# -*- coding: utf-8 -*-
+"""
+Spyder Editor
+
+This is a temporary script file.
+"""
+
+import matplotlib.pyplot as plt
+from sklearn import datasets
+from sklearn import svm
+from sklearn import metrics
+from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import export_graphviz 
+from sklearn.grid_search import GridSearchCV
+from sklearn.grid_search import RandomizedSearchCV
+from sklearn.cross_validation import cross_val_score
+from scipy.stats import randint
+from time import time
+from operator import itemgetter
+import numpy as np
+from sklearn.metrics import precision_recall_curve
+from sklearn import  grid_search
+
+
+TrainingDataCost = []
+TrainingDatapledged = []
+trainlabels=[]
+TestDataCost = []
+TestDatapledged = []
+Testlabels=[]
+scores = []
+
+def loadData():    
+    output = open('C:/Users/mandar/Downloads/testing/Trainlist/TrainingData.txt', 'r')
+    for li in output.read().replace(' ','').split(']['):
+        listofresults=[]
+        listofresults=li.split(',')
+        TrainingDatapledged.append(map(int,listofresults[1:2]))    
+        TrainingDataCost.append(map(int,listofresults[:1]))
+        trainlabels.append(int(listofresults[len(listofresults)-1]))
+     
+    output = open('C:/Users/mandar/Downloads/testing/Trainlist/TestDataSet.txt', 'r')
+    for li in output.read().replace(' ','').split(']['):
+        listofresults=[]
+        listofresults=li.split(',')
+        TestDatapledged.append(map(int,listofresults[1:2]))    
+        TestDataCost.append(map(int,listofresults[:1]))
+        Testlabels.append(int(listofresults[len(listofresults)-1]))
+
+#digits =datasets.load_digits()
+
+def svc_param_selection():
+    nestimator = [2,3,4,11]
+    maxdepth=[5,20,23,39]
+    minsampleleaf=[4,6,10,11]    
+    param_grid = {'max_depth':maxdepth, 'min_samples_leaf':minsampleleaf, 'n_estimators':nestimator}
+    grid_searchs = GridSearchCV(RandomForestClassifier(), param_grid, cv=2)
+    grid_searchs.fit(TrainingDataCost, trainlabels)
+    grid_searchs.best_params_
+    print (grid_searchs.best_params_)
+
+def classifierSVM():
+    k_range = list(range(1, 1000))
+    for k in k_range:
+        clf= svm.SVC(gamma=0.000001*k)
+        x,y = TrainingDataCost, trainlabels
+        clf.fit(x,y)
+        predicted = clf.predict(TestDataCost)
+        scores.append(metrics.f1_score(Testlabels, predicted))
+        #print str("Classification report for classifier %s for:\n%s\n" % (clf, metrics.classification_report(Testlabels, predicted)))
+        #%matplotlib inline
+        # plot the relationship between K and testing accuracy
+    k_range = [u * 0.000001 for u in k_range]
+    ymax = max(scores)
+    xpos = scores.index(ymax)
+    xmax = k_range[xpos]
+    #my_dpi=96
+    #fig = plt.figure(figsize=(800/my_dpi, 800/my_dpi), dpi=my_dpi)
+    #ax = fig.add_subplot(111)
+    
+    #line, = ax.plot(k_range, scores)
+    #annotext='Max:'+' '+str(xmax)+','+str(ymax)
+    
+    #ax.annotate(annotext, xy=(xmax, ymax), xytext=(xmax, ymax+5),
+     #       arrowprops=dict(facecolor='black', shrink=0.05),
+      #      )
+    plt.plot(k_range, scores)
+    #ax.set_ylim(0,20)
+    plt.xlabel('Value of gamma for SVM ')
+    plt.ylabel('Testing f-1 Score')
+    print (xmax*100)
+    print (ymax)
+
+    
+    
+    
+    
+    #clf= svm.SVC(gamma=0.00006)
+    #x,y = TrainingDataCost, trainlabels
+    #clf.fit(x,y)
+    #predicted = clf.predict(TestDataCost)
+    #print str("Classification report for classifier %s for:\n%s\n" % (clf, metrics.classification_report(Testlabels, predicted)))
+
+
+def report(grid_scores, n_top=3):
+    """Report top n_top parameters settings, default n_top=3.
+
+    Args
+    ----
+    grid_scores -- output from grid or random search
+    n_top -- how many to report, of top models
+
+    Returns
+    -------
+    top_params -- [dict] top parameter settings found in
+                  search
+    """
+    top_scores = sorted(grid_scores,
+                        key=itemgetter(1),
+                        reverse=True)[:n_top]
+    for i, score in enumerate(top_scores):
+        print("Model with rank: {0}".format(i + 1))
+        print(("Mean validation score: "
+               "{0:.3f} (std: {1:.3f})").format(
+               score.mean_validation_score,
+               np.std(score.cv_validation_scores)))
+        print("Parameters: {0}".format(score.parameters))
+        print("")
+
+    return top_scores[0].parameters
+
+
+
+
+
+def run_randomsearch(X, y, clf, param_dist, cv=5,
+                     n_iter_search=20):
+    """Run a random search for best Decision Tree parameters.
+
+    Args
+    ----
+    X -- features
+    y -- targets (classes)
+    cf -- scikit-learn Decision Tree
+    param_dist -- [dict] list, distributions of parameters
+                  to sample
+    cv -- fold of cross-validation, default 5
+    n_iter_search -- number of random parameter sets to try,
+                     default 20.
+
+    Returns
+    -------
+    top_params -- [dict] from report()
+    """
+    random_search = RandomizedSearchCV(clf,
+                        param_distributions=param_dist,
+                        n_iter=n_iter_search)
+
+    start = time()
+    random_search.fit(X, y)
+    print(("\nRandomizedSearchCV took {:.2f} seconds "
+           "for {:d} candidates parameter "
+           "settings.").format((time() - start),
+                               n_iter_search))
+
+    top_params = report(random_search.grid_scores_, 3)
+    return  top_params
+
+def classifierDecisoinTreebest():
+    #clf = tree.DecisionTreeClassifier()
+    x,y = TrainingDataCost, trainlabels
+    #clf.fit(x,y)
+    param_dist = {"criterion": ["gini", "entropy"],
+              "min_samples_split": randint(2, 20),
+              "max_depth": randint(1, 20),
+              "min_samples_leaf": randint(1, 20),
+              "max_leaf_nodes": randint(2, 20)}
+
+    dt = tree.DecisionTreeClassifier()
+    ts_rs = run_randomsearch(x, y, dt, param_dist, cv=10,
+                         n_iter_search=288)
+    print("\n-- Best Parameters:")
+    for k, v in ts_rs.items():
+        print("parameters: {:<20s} setting: {}".format(k, v))
+    #predicted = clf.predict(TestDataCost)
+    #print str("Classification report for classifier %s for:\n%s\n" % (clf, metrics.classification_report(Testlabels, predicted)))
+
+
+def ClassifierRandomForest(): 
+    clf=RandomForestClassifier(max_features="s" )
+    x,y = TrainingDataCost, trainlabels
+    clf.fit(x,y)
+    predicted = clf.predict(TestDataCost)
+    print str("Classification report for classifier %s for:\n%s\n" % (clf, metrics.classification_report(Testlabels, predicted)))
+
+def ClassifierKNN():     
+    k_range = list(range(1, 1000))
+
+    for k in k_range:
+        clf = KNeighborsClassifier(n_neighbors=k)
+        x,y = TrainingDataCost, trainlabels
+        clf.fit(x,y)
+        #predicted = clf.predict(TestDataCost)
+        cv = cross_val_score(clf, x,y, cv=2, scoring='accuracy')
+        scores.append(cv.mean())
+        #scores.append(metrics.f1_score(Testlabels, predicted))
+        #print str("Classification report for classifier %s for:\n%s\n" % (clf, metrics.classification_report(Testlabels, predicted)))
+        #%matplotlib inline
+        # plot the relationship between K and testing accuracy
+    ymax = max(scores)
+    xpos = scores.index(ymax)
+    xmax = k_range[xpos]
+    plt.plot(k_range, scores)
+    plt.xlabel('Value of K for KNN')
+    plt.ylabel('Testing F1-score')
+    print (xmax)
+    print (ymax)
+
+
+def classifierDecisoinTree():
+    k_range = list(range(2, 1000))
+
+    for k in k_range:
+        x,y = TrainingDataCost, trainlabels
+        clf= tree.DecisionTreeClassifier(min_samples_split=k)
+        clf.fit(x,y)
+        predicted = clf.predict(TestDataCost)
+        scores.append(metrics.accuracy_score(Testlabels, predicted))
+    #print str("Classification report for classifier %s for:\n%s\n" % (clf, metrics.classification_report(Testlabels, predicted)))
+    ymax = max(scores)
+    xpos = scores.index(ymax)
+    xmax = k_range[xpos]
+    print (xmax)
+    print (ymax)
+    Score_preci=[]
+    for k in k_range:
+        x,y = TrainingDataCost, trainlabels
+        clf= tree.DecisionTreeClassifier(min_samples_split=k)
+        clf.fit(x,y)
+        predicted = clf.predict(TestDataCost)
+        Score_preci.append(metrics.precision_score(Testlabels, predicted))
+
+    ymax = max(Score_preci)
+    xpos = Score_preci.index(ymax)
+    xmax = k_range[xpos]
+    print (xmax)
+    print (ymax)
+       
+    Score_recall=[]
+    for k in k_range:
+        x,y = TrainingDataCost, trainlabels
+        clf= tree.DecisionTreeClassifier(min_samples_split=k)
+        clf.fit(x,y)
+        predicted = clf.predict(TestDataCost)
+        Score_recall.append(metrics.recall_score(Testlabels, predicted))
+    ymax = max(Score_recall)
+    xpos = Score_recall.index(ymax)
+    xmax = k_range[xpos]
+    print (xmax)
+    print (ymax)
+    
+
+    Score_f1=[]
+    for k in k_range:
+        x,y = TrainingDataCost, trainlabels
+        clf= tree.DecisionTreeClassifier(min_samples_split=k)
+        clf.fit(x,y)
+        predicted = clf.predict(TestDataCost)
+        Score_f1.append(metrics.f1_score(Testlabels, predicted))
+    ymax = max(Score_f1)
+    xpos = Score_f1.index(ymax)
+    xmax = k_range[xpos]
+    print (xmax)
+    print (ymax)
+    
+    plt.plot(k_range, scores)
+    plt.plot(k_range, Score_preci)
+    plt.plot(k_range, Score_recall)
+    plt.plot(k_range, Score_f1)
+    plt.xlabel('Value of min sample split for Decision Tree')
+    plt.ylabel('Testing Values')
+    plt.legend(['Accuracy', 'Precision', 'Recall', 'f1-score'], loc='upper center')
+    
+
+
+def classifierRandom():
+    k_range = list(range(2, 100))
+
+    for k in k_range:
+        x,y = TrainingDataCost, trainlabels
+        clf= RandomForestClassifier(min_samples_leaf=k)
+        clf.fit(x,y)
+        predicted = clf.predict(TestDataCost)
+        scores.append(metrics.accuracy_score(Testlabels, predicted))
+    #print str("Classification report for classifier %s for:\n%s\n" % (clf, metrics.classification_report(Testlabels, predicted)))
+    ymax = max(scores)
+    xpos = scores.index(ymax)
+    xmax = k_range[xpos]
+    print (xmax)
+    print (ymax)
+    Score_preci=[]
+    for k in k_range:
+        x,y = TrainingDataCost, trainlabels
+        clf= RandomForestClassifier(min_samples_leaf=k)
+        clf.fit(x,y)
+        predicted = clf.predict(TestDataCost)
+        Score_preci.append(metrics.precision_score(Testlabels, predicted))
+
+    ymax = max(Score_preci)
+    xpos = Score_preci.index(ymax)
+    xmax = k_range[xpos]
+    print (xmax)
+    print (ymax)
+       
+    Score_recall=[]
+    for k in k_range:
+        x,y = TrainingDataCost, trainlabels
+        clf= RandomForestClassifier(min_samples_leaf=k)
+        clf.fit(x,y)
+        predicted = clf.predict(TestDataCost)
+        Score_recall.append(metrics.recall_score(Testlabels, predicted))
+    ymax = max(Score_recall)
+    xpos = Score_recall.index(ymax)
+    xmax = k_range[xpos]
+    print (xmax)
+    print (ymax)
+    
+
+    Score_f1=[]
+    for k in k_range:
+        x,y = TrainingDataCost, trainlabels
+        clf= RandomForestClassifier(min_samples_leaf=k)
+        clf.fit(x,y)
+        predicted = clf.predict(TestDataCost)
+        Score_f1.append(metrics.f1_score(Testlabels, predicted))
+    ymax = max(Score_f1)
+    xpos = Score_f1.index(ymax)
+    xmax = k_range[xpos]
+    print (xmax)
+    print (ymax)
+    
+    plt.plot(k_range, scores)
+    plt.plot(k_range, Score_preci)
+    plt.plot(k_range, Score_recall)
+    plt.plot(k_range, Score_f1)
+    plt.xlabel('Value of min_samples_leaf for Random Forest')
+    plt.ylabel('Testing Values')
+    plt.legend(['Accuracy', 'Precision','Recall', 'f1-score'], loc='upper center')
+
+
+
+def randfor():
+    x,y = TrainingDataCost, trainlabels
+    clf= RandomForestClassifier(n_estimators=3,max_depth=5,min_samples_leaf=10)
+    clf.fit(x,y)
+    predicted = clf.predict(TestDataCost)
+    print str("Classification report for classifier %s for:\n%s\n" % (clf, metrics.classification_report(Testlabels, predicted)))
+
+
+
+
+
+loadData() 
+
+#classifierDecisoinTree()
+#classifierDecisoinTreebest() 
+#classifierSVM()
+#classifierDecisoinTree()
+#svc_param_selection()
+randfor()
+
+#classifierRandom()
+
+
+#print('predictions:',clf.predict(TestDataCost[-6]) )
+#plt.imshow(digits.images[-6],cmap=plt.cm.gray_r, interpolation="nearest")
+#plt.show()
+#print ('result',Testlabels[-6] )
+#classifier = svm.SVC(kernel='rbf',gamma=0.0001).fit(TrainingDataCost, trainlabels)
+#print rfc.score(test_set[0],test_set[1])
