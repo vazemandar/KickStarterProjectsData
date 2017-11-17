@@ -1,0 +1,74 @@
+>  mydata = read.csv("C:/Users/mandar/Downloads/testing/useful/dothem/ChalkDocAneasierwaytomakelessons.csv")
+> install.packages("zoo")
+> library(zoo)
+> mydata$Date
+> str(mydata)
+>  as.Date(mydata$Date, format = "%m/%d/%Y")
+> help.search("ts")
+starting httpd help server ... done
+> df <- subset(mydata, select = c(Firstdiff,Date))
+> myts <- ts(mydata) 
+> myts<-ts(myts)
+> myts<-ts(df)
+> project1ts<-ts(df)
+> plot.ts(project1ts)
+> df <- subset(mydata, select = c(Firstdiff))
+> ts<-ts(df, start=c2017,1,24) )
+> ts<-ts(df, start=c(2017,1,24) )
+> projectts<-ts(df, start=c(2017,1,24) )
+> projectts<-ts(df, start=c(2017,1,24), frequency=365 )
+> projectts<-ts(df, start=c(1,24), frequency=365 )
+> xts(mydata$Firstdiff, as.Date(mydata$Date, format='%m/%d/%Y')
+
++ > 
+> myts <- xts(mydata$Firstdiff, as.Date(mydata$Date, format='%m/%d/%Y')
+
++ > 
+> library(zoo)
+> projzoo<-zoo(mydata$Firstdiff, order.by=as.Date(as.character(mydata$Date), format='%m/%d/%Y'))
+> ts(projzoo)
+> proj<-ts(projzoo)
+> plot.ts(proj)
+> logproj<-log(proj)
+> plot.ts(logproj)
+> plot.ts(logproj)
+> install.packages("TTR")
+> library("TTR")
+> smaproj<-SMA(proj,n=3)
+> plot.ts(smaproj)
+> smaproj<-SMA(proj,n=8)
+> plot.ts(smaproj)
+> diffproj<-diff(proj,differences=1)
+> plot.ts(diffproj)
+> plot.ts(proj)
+> install.packages("tseries")
+> library(tseries)
+> acf(diffproj, lag.max=27, plot=FALSE ,na.action=na.omit)
+> acf(diffproj, lag.max=27, plot=Ture ,na.action=na.omit)
+> acf(diffproj, lag.max=27, plot=TRUE ,na.action=na.omit)
+> pacf(diffproj, lag.max=27, plot=TRUE ,na.action=na.omit)
+> acf(diffproj, lag.max=27, plot=TRUE ,na.action=na.omit)
+> projtimeseries <- arima(proj, order=c(0,1,1))
+> projtimeseries 
+
+Call:
+arima(x = proj, order = c(0, 1, 1))
+
+Coefficients:
+          ma1
+      -0.5152
+s.e.   0.3186
+
+sigma^2 estimated as 18434:  log likelihood = -183.72,  aic = 371.44
+> install.packages("forecast")
+> library("forecast")
+> projforecast <- forecast.Arima(projtimeseries,h=4)
+> projforecast
+   Point Forecast      Lo 80    Hi 80     Lo 95    Hi 95
+32        78.3187  -95.68203 252.3194 -187.7925 344.4298
+33        78.3187 -115.05035 271.6877 -217.4137 374.0511
+34        78.3187 -132.64795 289.2853 -244.3269 400.9643
+35        78.3187 -148.88663 305.5240 -269.1619 425.7993
+> plot.forecast(projforecast)
+> save.image("C:\\Users\\mandar\\Desktop\\timeseries")
+> 
