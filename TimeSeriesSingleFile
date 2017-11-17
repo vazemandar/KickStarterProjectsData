@@ -1,0 +1,75 @@
+from xml.dom import minidom
+import re 
+import xml.etree.ElementTree as ET
+from collections import OrderedDict
+import os
+import csv
+
+Title=dict()
+
+
+source ='C:\Users\mandar\Desktop\All_The_File_Sequence' 
+#'C:/Users/mandar/Downloads/testing/Another_Try_Time_Series'
+nop=0
+for root, dirs, filenames in os.walk(source):
+    for f in filenames:
+        print(f)
+        nop=nop+1
+        print(nop)
+        fullpath = os.path.join(source, f)
+        Date=os.path.getctime(fullpath)
+        fhand = open(fullpath)
+        root = ET.parse(fhand)
+        Date=os.path.getctime(fullpath)  
+        for titl in root.iter('Project'):      
+            try:
+                
+                Title[titl.find("Title").text]+=1
+            except:
+                Title[titl.find("Title").text]=1
+print (Title)     
+print (len(Title))           
+for key in Title.iterkeys(): 
+    data=[]
+    for root, dirs, filenames in os.walk(source):
+        try:
+            for f in filenames:
+                print(f)
+                fullpath = os.path.join(source, f)
+                fhand = open(fullpath)
+                root = ET.parse(fhand)
+                Date=int(os.path.getctime(fullpath))  
+                datenew=0
+                for titl in root.iter('Project'):  
+                    print(key)          
+                    if (titl.find("Title").text==key) :
+                        datenew=Date
+                        try:
+                            pledged=re.findall('\d+', titl.find("pledgedmoney").text.encode('ascii','ignore').decode("utf8").replace(" ","").split(".")[0].replace(",",""))
+                        except:
+                            pledged=re.findall('\d+', titl.find("pledgedmoney").text.encode('ascii','ignore').decode("utf8").replace(" ","").replace(",",""))
+                        
+                        try:    
+                            totalcost=re.findall('\d+', titl.find("TotalCost").text.encode('ascii','ignore').decode("utf8").replace(" ","").split(".")[0].replace(",",""))
+                        except:
+                            totalcost=re.findall('\d+', titl.find("TotalCost").text.encode('ascii','ignore').decode("utf8").replace(" ","").replace(",",""))
+                        ts=[]
+                        ts.append(key)
+                        ts.append(totalcost)
+                        ts.append(pledged)
+                        ts.append(datenew)
+                        ts.append(key)
+                        data.append(ts)
+                        break
+            newfile='C:/Users/mandar/Desktop/newtest/'
+            #'C:/Users/mandar/Downloads/testing/Another_try_Results/6May2017_02/'
+            with open(newfile+re.sub('[^a-zA-Z \n\.]', '', key.encode('ascii','ignore').decode("utf8")).replace(" ","")+".csv", 'w') as fp:
+                a = csv.writer(fp, delimiter=',')
+                a.writerows(data)    
+        except:
+            continue
+    
+    
+    
+
+                
